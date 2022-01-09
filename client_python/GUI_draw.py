@@ -117,10 +117,8 @@ class GUI:
                 agent.remove_task()
                 client.choose_next_edge(
                     '{"agent_id":' + str(agent.id) + ', "next_node_id":' + str(next_node) + '}')
-                ttl = client.time_to_end()
-                print(ttl, client.get_info())
 
-    def check_events(self, client, stop_button):
+    def check_events(self, client, stop_button, start_button, stop: bool = False, start: bool = False):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 client.stop_connection()
@@ -128,10 +126,14 @@ class GUI:
                 exit(0)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
-                if stop_button.collidepoint(mouse_pos):
+                if stop and stop_button.collidepoint(mouse_pos):
                     client.stop_connection()
                     pygame.quit()
                     exit(0)
+                if start and start_button.collidepoint(mouse_pos):
+                    return False
+        return True
+
 
     def start_button(self, WIDTH, HEIGHT, FONT):
         start_button = pygame.Rect(WIDTH / 2 - 125, HEIGHT / 2 - 50, 250, 75)

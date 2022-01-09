@@ -15,9 +15,7 @@ from client_python.pokemon import Pokemons
 from client_python.pokemon import Pokemon
 
 # init pygame
-
 WIDTH, HEIGHT = 1080, 720
-
 # default port
 PORT = 6666
 # server host (default localhost 127.0.0.1)
@@ -36,8 +34,8 @@ OPEN_FONT = pygame.font.SysFont('comicsansms', 50, bold=True)
 
 graph_json = client.get_graph()
 print(graph_json)
-graph = DiGraph(graph_json)
-Agraph = GraphAlgo(graph)
+graph = DiGraph(graph_json) # upload graph
+algo_graph = GraphAlgo(graph) # convert to GraphAlgo for the usage of shortest path
 
 # get data proportions
 min_x = min(list(graph.nodes.values()), key=lambda n: n.x).x
@@ -62,11 +60,18 @@ def my_scale(data, x=False, y=False):
 
 
 async def move_after(delay):
+    """
+    make a delay on function move() to reduce the number of times calling it
+    """
     await asyncio.sleep(delay)
     client.move()
 
 
 async def move_pokemons(flag: bool = False):
+    """
+    if the agent is on an edge that has a pokemon (flag = True) - call to move() function
+    if the agent is on an edge that has no pokemon on it (flag = False) - call to move() function every 0.122 seconds
+    """
     if not flag:
         await move_after(0.122)
     if flag:
@@ -78,6 +83,7 @@ num_of_agents = info_details['GameServer']['agents']
 pokemons = Pokemons(client.get_pokemons(), graph)
 pokemons.pokemon_list.sort(key=lambda x: x.value)
 
+# add agents
 i = 0
 while i < num_of_agents:
     client.add_agent("{\"id\":" + str(pokemons.pokemon_list[i].src) + "}")
@@ -86,25 +92,19 @@ while i < num_of_agents:
 agents = Agents(client.get_agents(), graph)
 
 gui = GUI('designs/opening_background.jpg', 'designs/agent.png', 'designs/pokemon1.png', 'designs/pokemon2.png',
-          'designs/background.jpg', graph, Agraph, screen)
+          'designs/background.jpg', graph, algo_graph, screen)
 
 didnt_start_yet = True
 
+# opening screen
 while didnt_start_yet:
     screen.fill(Color(0, 0, 0))
     gui.draw_opening_background()
     start_button = gui.start_button(WIDTH, HEIGHT, OPEN_FONT)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            client.stop_connection()
-            pygame.quit()
-            exit(0)
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = event.pos
-            if start_button.collidepoint(mouse_pos):
-                didnt_start_yet = False
+    didnt_start_yet = gui.check_events(client, None, start_button, False, True)
     display.update() # update screen changes
 
+# starts the game
 client.start()
 while client.is_running() == 'true':
     screen.fill(Color(0, 0, 0)) # refresh surface
@@ -117,7 +117,7 @@ while client.is_running() == 'true':
     pokemons = Pokemons(client.get_pokemons(), graph)
     pokemons.pokemon_list.sort(key=lambda x: x.value)
 
-    gui.check_events(client, stop_button)
+    gui.check_events(client, stop_button, None, True, False)
 
     gui.draw_edges(my_scale)
     gui.draw_nodes(my_scale, FONT)
@@ -139,4 +139,4 @@ while client.is_running() == 'true':
         if move:
             break
 
-    asyncio.run(move_pokemons(move))
+    asyncio.run(move_pokemons(move)) # decrease number of calling to move()
