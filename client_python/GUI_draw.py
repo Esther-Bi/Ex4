@@ -32,8 +32,6 @@ class GUI:
         pokemon_image2 = image.load(self.pokemon2)
         pokemon_image2 = transform.scale(pokemon_image2, (40, 40))
         for p in pokemons.pokemon_list:
-            # pygame.draw.circle(screen, p.color,
-            #                    (int(my_scale(float(p.x), x=True)), int(my_scale(float(p.y), y=True))), 10)
             if p.color == 1:
                 self.screen.blit(pokemon_image1,
                                  (int(my_scale(float(p.x), x=True) - 20), int(my_scale(float(p.y), y=True) - 20)))
@@ -133,7 +131,6 @@ class GUI:
                 if start and start_button.collidepoint(mouse_pos):
                     return False
         return True
-
 
     def start_button(self, WIDTH, HEIGHT, FONT):
         start_button = pygame.Rect(WIDTH / 2 - 125, HEIGHT / 2 - 50, 250, 75)
