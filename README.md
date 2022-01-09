@@ -6,4 +6,4 @@ We used different data structures such as dictionaries to save our data, to opti
 Explanations about the classes can be seen on Wiki.<br>
 An example of running can also be seen on Wiki.<br>
 <br>
-FEEL FREE TO TAKE A LOOK!
+### FEEL FREE TO TAKE A LOOK!
